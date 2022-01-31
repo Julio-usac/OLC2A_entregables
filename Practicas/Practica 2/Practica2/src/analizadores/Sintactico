@@ -1,0 +1,75 @@
+
+package analizadores; 
+import java_cup.runtime.*;
+
+parser code 
+{:
+    int contador1=0;
+    int contador2=0;
+    String var1="",var2="";
+    public void syntax_error(Symbol s){ 
+        System.out.println("Error Sintáctico en la Línea " + (s.left) +
+        " Columna "+s.right+ ". No se esperaba este componente: " +s.value+"."); 
+    } 
+
+    public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception{ 
+        System.out.println("Error síntactico irrecuperable en la Línea " + 
+        (s.left)+ " Columna "+s.right+". Componente " + s.value + 
+        " no reconocido."); 
+    }  
+
+    public void mostrar(String out) {
+        System.out.println(out);
+    }
+
+    public int getVal(String num) {
+        return Integer.parseInt(num);
+    }
+:} 
+
+
+terminal String cero;
+terminal String uno;
+terminal String punto;
+
+
+non terminal ini;
+non terminal Nodo A;
+non terminal Nodo B;
+non terminal Nodo C;
+
+
+start with ini; 
+
+ini::=A:a1 {:System.out.println(a1.val);:}
+;
+
+A ::= B:b1 punto B:b2 {:b1.val=(b1.entero + b2.decimal)+"";
+                    RESULT=b1; :}
+|B:b1 {: b1.val=b1.entero+"";
+         RESULT= b1; :}
+; 
+
+B ::= B:b1 C:c1 {:
+                    b1.entero= b1.entero * 2 +getVal(c1.val);
+                    b1.aux= b1.aux/2;
+                    b1.decimal = b1.decimal + getVal(c1.val) * b1.aux;
+                    RESULT = b1;    
+                :}
+|C:ca  {:
+        ca.entero = getVal(ca.val);
+        ca.aux = (float) 0.5;
+        ca.decimal= (float) getVal(ca.val) * (float) 0.5;
+        RESULT = ca;
+    :}
+;
+
+C ::= cero:a {: Nodo nodo = new Nodo();
+                nodo.val = a;
+                RESULT = nodo; 
+             :}
+|uno:a  {:  Nodo nodo = new Nodo();
+            nodo.val = a;
+            RESULT = nodo; 
+        :}
+;
